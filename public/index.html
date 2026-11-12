@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FamilyPay</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;
+  --glass:rgba(255,255,255,.04);
+  --glass-b:rgba(255,255,255,.08);
+  --tx:#f0f0f5;
+  --mu:#8b8b9e;
+  --neon:#7c3aed;
+  --neon2:#06b6d4;
+  --neon3:#ec4899;
+  --ok:#10b981;
+  --bad:#f43f5e;
+}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--tx);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body::before,body::after{
+  content:'';position:fixed;border-radius:50%;filter:blur(120px);opacity:.3;z-index:0;pointer-events:none;
+  animation:float 20s ease-in-out infinite;
+}
+body::before{width:600px;height:600px;background:var(--neon);top:-200px;left:-200px}
+body::after{width:500px;height:500px;background:var(--neon2);bottom:-200px;right:-200px;animation-delay:-10s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,-40px) scale(1.1)}}
+
+.wrap{max-width:980px;margin:0 auto;padding:24px 18px 60px;position:relative;z-index:1}
+
+.card{
+  background:var(--glass);border:1px solid var(--glass-b);border-radius:20px;padding:24px;margin-bottom:18px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 8px 32px rgba(0,0,0,.3);transition:transform .2s,border-color .2s;
+}
+.card:hover{border-color:rgba(124,58,237,.3)}
+
+h1{
+  font-size:28px;font-weight:800;letter-spacing:-.5px;
+  background:linear-gradient(135deg,#fff 0%,var(--mu) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;
+}
+h2{font-size:14px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mu);margin-bottom:18px}
+.mu{color:var(--mu);font-size:14px;line-height:1.5}
+
+.hero{max-width:420px;margin:8vh auto 0;text-align:center;padding:40px 32px}
+.logo{
+  width:72px;height:72px;border-radius:22px;
+  background:linear-gradient(135deg,var(--neon),var(--neon2));
+  display:grid;place-items:center;font-size:36px;margin:0 auto 24px;
+  box-shadow:0 0 40px rgba(124,58,237,.5),0 8px 24px rgba(6,182,212,.3);
+  animation:pulse 3s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 40px rgba(124,58,237,.5)}50%{box-shadow:0 0 60px rgba(6,182,212,.6)}}
+
+input{
+  width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--glass-b);
+  background:rgba(0,0,0,.3);color:var(--tx);font-size:15px;font-family:inherit;
+  margin:8px 0;transition:all .2s;
+}
+input::placeholder{color:var(--mu)}
+input:focus{outline:none;border-color:var(--neon);box-shadow:0 0 0 3px rgba(124,58,237,.15);background:rgba(0,0,0,.4)}
+
+button{
+  padding:14px 20px;border:0;border-radius:12px;
+  background:linear-gradient(135deg,var(--neon),var(--neon2));
+  color:#fff;font-size:15px;font-weight:600;cursor:pointer;width:100%;margin-top:10px;
+  font-family:inherit;transition:all .2s;box-shadow:0 4px 16px rgba(124,58,237,.3);
+}
+button:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,.5)}
+button.alt{background:transparent;color:var(--tx);border:1px solid var(--glass-b);box-shadow:none}
+button.alt:hover{background:var(--glass);border-color:var(--neon);box-shadow:none}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:18px}
+.stat{padding:20px}
+.stat .label{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px}
+.stat b{
+  font-size:26px;font-weight:800;display:block;
+  background:linear-gradient(135deg,#fff,var(--mu));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.charts .card{margin-bottom:0}
+.chart-svg{width:100%;height:auto;display:block;overflow:visible}
+
+.donut-wrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.donut-wrap svg{flex-shrink:0;max-width:180px}
+.legend{flex:1;min-width:140px;display:flex;flex-direction:column;gap:8px;font-size:13px}
+.legend .li{display:flex;align-items:center;gap:10px}
+.legend .dot{width:12px;height:12px;border-radius:4px;flex-shrink:0}
+.legend .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.legend .val{font-weight:700;font-variant-numeric:tabular-nums}
+
+.row{display:flex;align-items:center;gap:12px;margin:16px 0}
+.nm{width:90px;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{flex:1;height:28px;background:rgba(0,0,0,.35);border-radius:10px;position:relative;overflow:hidden;border:1px solid var(--glass-b)}
+.bar{height:100%;border-radius:9px;background:linear-gradient(90deg,var(--neon),var(--neon2));transition:width .6s cubic-bezier(.4,0,.2,1);position:relative}
+.bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:shine 2s infinite}
+@keyframes shine{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+.bar.over{background:linear-gradient(90deg,#f43f5e,#ec4899)}
+.lim{position:absolute;top:-2px;bottom:-2px;width:3px;background:#fff;opacity:.9;border-radius:2px;box-shadow:0 0 8px rgba(255,255,255,.6)}
+.amt{width:88px;text-align:right;font-size:14px;font-weight:700}
+
+.line-chart{position:relative}
+.line-chart svg{display:block;width:100%;height:auto}
+.line-chart .dot{cursor:pointer;transition:r .15s}
+.line-chart .dot:hover{r:6}
+.axis-text{font-size:10px;fill:var(--mu);font-family:inherit}
+.grid-line{stroke:var(--glass-b);stroke-width:1}
+
+.alert{
+  border-left:3px solid var(--bad);background:rgba(244,63,94,.1);
+  padding:14px 16px;border-radius:12px;margin:10px 0;font-size:14px;border:1px solid rgba(244,63,94,.2);
+}
+.alert b{color:var(--bad)}
+
+.badge{
+  display:inline-block;background:linear-gradient(135deg,var(--neon),var(--neon2));
+  color:#fff;border-radius:99px;padding:3px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;
+}
+.code{
+  font-size:38px;letter-spacing:10px;font-weight:800;
+  background:linear-gradient(135deg,var(--neon),var(--neon2),var(--neon3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-family:ui-monospace,'SF Mono',Menlo,monospace;text-align:center;padding:12px 0;
+}
+
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.top button{width:auto;padding:10px 20px}
+
+#msgs{
+  height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:8px;margin-bottom:12px;
+  scrollbar-width:thin;scrollbar-color:var(--glass-b) transparent;
+}
+#msgs::-webkit-scrollbar{width:6px}
+#msgs::-webkit-scrollbar-thumb{background:var(--glass-b);border-radius:3px}
+.m{max-width:85%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.m.u{align-self:flex-end;background:linear-gradient(135deg,var(--neon),var(--neon2));color:#fff;border-bottom-right-radius:4px;box-shadow:0 4px 16px rgba(124,58,237,.3)}
+.m.a{align-self:flex-start;background:var(--glass);border:1px solid var(--glass-b);border-bottom-left-radius:4px}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chips button{width:auto;font-size:12px;padding:8px 14px;margin:0;border-radius:20px}
+.send{display:flex;gap:10px}
+.send input{margin:0;flex:1}
+.send button{width:auto;padding:14px 28px;margin:0;flex-shrink:0}
+
+.lims{display:flex;align-items:center;gap:12px;margin:10px 0}
+.lims .nm{width:100px}
+.lims input{width:140px;margin:0;padding:8px 12px;text-align:right}
+
+@media(max-width:700px){
+  .charts{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .wrap{padding:16px 12px 40px}
+  .card{padding:18px;border-radius:16px}
+  h1{font-size:22px}
+  .grid{grid-template-columns:1fr}
+  .nm{width:70px;font-size:13px}
+  .amt{width:70px;font-size:13px}
+  .code{font-size:28px;letter-spacing:6px}
+  .top button{padding:8px 14px;font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const $ = document.getElementById('app');
+const inr = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
+const PALETTE = ['#7c3aed','#06b6d4','#ec4899','#10b981','#f59e0b','#3b82f6','#a855f7','#ef4444'];
+let D, chat = [];
+const post = (u, b) =>
+  fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b) });
+
+async function init() {
+  const r = await fetch('/api/family');
+  if (r.status === 401) return loginView();
+  D = await r.json();
+  D.family ? dash() : famView();
+}
+
+function loginView() {
+  $.innerHTML = `
+    <div class="card hero">
+      <div class="logo">💸</div>
+      <h1>FamilyPay</h1>
+      <p class="mu" style="margin-bottom:24px">Shared spending, zero drama.</p>
+      <button onclick="location='/auth/login'">Continue with FamilyPay ID</button>
+      <p class="mu" style="margin:20px 0 8px;font-size:13px">or try it instantly</p>
+      <input id="n" placeholder="Your name" autocomplete="off">
+      <button class="alt" onclick="location='/auth/sandbox?name='+encodeURIComponent(n.value||'Guest1')">Continue with FamilyPay Sandbox</button>
+      <button class="alt" onclick="location='/auth/demo?name='+encodeURIComponent(n.value||'Guest1')">Demo login</button>
+    </div>`;
+}
+
+function famView(err = '') {
+  $.innerHTML = `
+    <div class="card hero">
+      <h1>Hey ${D.name} 👋</h1>
+      <p class="mu" style="margin-bottom:24px">Join a family or start your own</p>
+      <input id="c" placeholder="Family code" autocomplete="off" style="text-transform:uppercase">
+      <button onclick="join()">Join family</button>
+      <p class="mu" style="margin:20px 0 8px;font-size:13px">or</p>
+      <input id="f" placeholder="Family name" autocomplete="off">
+      <button class="alt" onclick="create()">Create family (I'm the head)</button>
+      ${err ? `<p style="color:var(--bad);margin-top:16px;font-size:14px">${err}</p>` : ''}
+    </div>`;
+}
+
+async function join() {
+  const r = await post('/api/join', { code: document.getElementById('c').value });
+  r.ok ? init() : famView((await r.json()).error);
+}
+async function create() {
+  await post('/api/create', { name: document.getElementById('f').value });
+  init();
+}
+async function setLim(e, v) {
+  await post('/api/limit', { email: e, limit: v });
+  init();
+}
+
+/* ---------- aggregation ---------- */
+function aggCategories(members) {
+  const c = {};
+  for (const m of members) {
+    for (const [k, v] of Object.entries(m.categories || {})) {
+      c[k] = (c[k] || 0) + v;
+    }
+  }
+  return c;
+}
+
+function buildTrend(members, days = 7) {
+  const today = new Date();
+  const buckets = Array.from({ length: days }, () => 0);
+  const weights = [0.9, 1.15, 0.8, 1.3, 1.05, 1.4, 0.7];
+  const totalPerMember = members.map((m) => Object.values(m.categories || {}).reduce((a, b) => a + b, 0));
+  members.forEach((m, i) => {
+    const total = totalPerMember[i];
+    const seed = [...m.email].reduce((a, ch) => a + ch.charCodeAt(0), 0);
+    for (let d = 0; d < days; d++) {
+      const jitter = 0.7 + ((seed * (d + 1) * 9301 + 49297) % 233280) / 233280 * 0.6;
+      buckets[d] += (total / 7.3) * weights[d] * jitter;
+    }
+  });
+  return buckets.map((v, i) => {
+    const dt = new Date(today);
+    dt.setDate(today.getDate() - (days - 1 - i));
+    return { label: dt.toLocaleDateString('en', { weekday: 'short' }), value: Math.round(v) };
+  });
+}
+
+/* ---------- donut ---------- */
+function renderDonut(data) {
+  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+  const total = entries.reduce((a, [, v]) => a + v, 0) || 1;
+  const size = 180, r = 70, cx = size / 2, cy = size / 2;
+  const stroke = 26;
+  const circ = 2 * Math.PI * r;
+  let offset = 0;
+  const arcs = entries.map(([k, v], i) => {
+    const frac = v / total;
+    const dash = frac * circ;
+    const gap = circ - dash;
+    const color = PALETTE[i % PALETTE.length];
+    const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}"
+      stroke-width="${stroke}" stroke-dasharray="${dash} ${gap}"
+      stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"
+      style="transition:stroke-dasharray .6s ease">
+      <title>${k}: ${inr(v)} (${(frac * 100).toFixed(1)}%)</title>
+    </circle>`;
+    offset += dash;
+    return el;
+  }).join('');
+
+  const legend = entries.map(([k, v], i) => `
+    <div class="li">
+      <span class="dot" style="background:${PALETTE[i % PALETTE.length]}"></span>
+      <span class="name">${k}</span>
+      <span class="val">${inr(v)}</span>
+    </div>`).join('') || '<p class="mu">No spending data</p>';
+
+  return `
+    <div class="donut-wrap">
+      <svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="${stroke}"/>
+        ${arcs}
+        <text x="${cx}" y="${cy - 4}" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">${inr(total)}</text>
+        <text x="${cx}" y="${cy + 14}" text-anchor="middle" fill="#8b8b9e" font-size="10">total</text>
+      </svg>
+      <div class="legend">${legend}</div>
+    </div>`;
+}
+
+/* ---------- line ---------- */
+function renderLine(trend) {
+  const W = 460, H = 180;
+  const pad = { t: 16, r: 16, b: 26, l: 40 };
+  const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+  const max = Math.max(...trend.map((p) => p.value), 1) * 1.15;
+  const step = trend.length > 1 ? iw / (trend.length - 1) : iw;
+  const points = trend.map((p, i) => ({
+    x: pad.l + i * step,
+    y: pad.t + ih - (p.value / max) * ih,
+    ...p,
+  }));
+  const path = points.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(' ');
+  const area = `M ${points[0].x} ${pad.t + ih} ` +
+    points.map((p) => `L ${p.x} ${p.y}`).join(' ') +
+    ` L ${points[points.length - 1].x} ${pad.t + ih} Z`;
+
+  const yTicks = 4;
+  const grid = Array.from({ length: yTicks + 1 }, (_, i) => {
+    const y = pad.t + (ih * i) / yTicks;
+    const v = Math.round(max * (1 - i / yTicks));
+    return `<line class="grid-line" x1="${pad.l}" x2="${W - pad.r}" y1="${y}" y2="${y}"/>
+      <text class="axis-text" x="${pad.l - 6}" y="${y + 3}" text-anchor="end">${v >= 1000 ? Math.round(v / 1000) + 'k' : v}</text>`;
+  }).join('');
+
+  const dots = points.map((p) =>
+    `<circle class="dot" cx="${p.x}" cy="${p.y}" r="4" fill="#06b6d4" stroke="#0a0a0f" stroke-width="2">
+       <title>${p.label}: ${inr(p.value)}</title>
+     </circle>`).join('');
+
+  const labels = points.map((p) =>
+    `<text class="axis-text" x="${p.x}" y="${H - 6}" text-anchor="middle">${p.label}</text>`).join('');
+
+  return `
+    <div class="line-chart">
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="grad-line" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stop-color="#7c3aed"/>
+            <stop offset="1" stop-color="#06b6d4"/>
+          </linearGradient>
+          <linearGradient id="grad-area" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#7c3aed" stop-opacity=".35"/>
+            <stop offset="1" stop-color="#7c3aed" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        ${grid}
+        <path d="${area}" fill="url(#grad-area)"/>
+        <path d="${path}" fill="none" stroke="url(#grad-line)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        ${dots}
+        ${labels}
+      </svg>
+    </div>`;
+}
+
+/* ---------- dashboard ---------- */
+function dash() {
+  const F = D.family, ms = F.members, isHead = F.head === D.me;
+  const total = ms.reduce((a, m) => a + m.spent, 0);
+  const fines = ms.filter((m) => m.email !== F.head).reduce((a, m) => a + m.fine, 0);
+  const mx = Math.max(...ms.map((m) => Math.max(m.spent, m.limit)), 1) * 1.1;
+  const top = [...ms].sort((a, b) => b.spent - a.spent)[0];
+
+  const bars = ms.map((m) => `
+    <div class="row">
+      <div class="nm">${m.name}</div>
+      <div class="track">
+        <div class="bar ${m.spent > m.limit ? 'over' : ''}" style="width:${Math.min(100, m.spent / mx * 100)}%"></div>
+        <div class="lim" style="left:${Math.min(100, m.limit / mx * 100)}%"></div>
+      </div>
+      <div class="amt">${inr(m.spent)}</div>
+    </div>`).join('');
+
+  const al = ms.filter((m) => m.spent > m.limit && m.email !== F.head)
+    .map((m) => `<div class="alert">🚨 <b>${m.name}</b> is ${inr(m.spent - m.limit)} over the limit. Fine: <b>${inr(m.fine)}</b> → ${F.headName}.</div>`)
+    .join('') || '<p class="mu">All members within budget 🎉</p>';
+
+  const lims = isHead ? `
+    <div class="card">
+      <h2>Set limits</h2>
+      ${ms.map((m) => `<div class="lims"><div class="nm">${m.name}</div><input type="number" value="${m.limit}" onchange="setLim('${m.email}',this.value)"></div>`).join('')}
+    </div>` : '';
+
+  const catData = aggCategories(ms);
+  const trend = buildTrend(ms);
+
+  $.innerHTML = `
+    <div class="top">
+      <div>
+        <h1>${F.name}</h1>
+        <p class="mu" style="margin-top:6px">Code <span class="badge">${F.code}</span> · Head ${F.headName}</p>
+      </div>
+      <button class="alt" onclick="location='/'">↻ Refresh</button>
+    </div>
+
+    <div class="grid">
+      <div class="card stat"><div class="label">Family spending</div><b>${inr(total)}</b></div>
+      <div class="card stat"><div class="label">Top spender</div><b>${top.name}</b></div>
+      <div class="card stat"><div class="label">Fines owed</div><b>${inr(fines)}</b></div>
+    </div>
+
+    <div class="charts">
+      <div class="card">
+        <h2>By category</h2>
+        ${renderDonut(catData)}
+      </div>
+      <div class="card">
+        <h2>Last 7 days</h2>
+        ${renderLine(trend)}
+        <p class="mu" style="margin-top:10px;font-size:11px">Estimated from member totals (demo distribution)</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Spending vs limit</h2>
+      ${bars}
+      <p class="mu" style="margin-top:16px;font-size:12px">Source: ${ms.map((m) => m.name + ' – ' + m.source).join(' · ')}</p>
+    </div>
+
+    <div class="card"><h2>Alerts</h2>${al}</div>
+
+    <div class="card">
+      <h2>AI coach</h2>
+      <div id="msgs"></div>
+      <div class="chips">
+        ${['Who is overspending?', 'Savings plan', 'Cut dining costs']
+          .map((t) => `<button class="alt" onclick="ask(this.textContent)">${t}</button>`).join('')}
+      </div>
+      <div class="send">
+        <input id="q" placeholder="Ask about your family's spending…" onkeydown="if(event.key==='Enter')ask()">
+        <button onclick="ask()">Send</button>
+      </div>
+    </div>
+
+    ${lims}
+
+    <div class="card" style="text-align:center">
+      <p class="mu" style="margin-bottom:12px;font-size:13px">Invite family with this code</p>
+      <div class="code">${F.code}</div>
+    </div>`;
+  paint();
+}
+
+function esc(s) { return String(s).replace(/[<&]/g, (x) => (x === '<' ? '&lt;' : '&amp;')); }
+
+function paint() {
+  const m = document.getElementById('msgs');
+  if (!m) return;
+  m.innerHTML = chat.length
+    ? chat.map((c) => `<div class="m ${c.role === 'user' ? 'u' : 'a'}">${esc(c.text)}</div>`).join('')
+    : '<p class="mu" style="text-align:center;padding:40px 0">Ask me anything about your family\'s spending ✨</p>';
+  m.scrollTop = m.scrollHeight;
+}
+
+let asking = false;
+async function ask(t) {
+  if (asking) return;
+  const input = document.getElementById('q');
+  t = (t || input.value).trim();
+  if (!t) return;
+  input.value = '';
+  asking = true;
+  chat.push({ role: 'user', text: t });
+  chat.push({ role: 'model', text: 'Thinking…' });
+  paint();
+  try {
+    const r = await (await post('/api/chat', { messages: chat.slice(0, -1) })).json();
+    chat[chat.length - 1].text = r.reply || 'No reply';
+  } catch (e) {
+    chat[chat.length - 1].text = 'Network error. Try again.';
+  }
+  asking = false;
+  paint();
+}
+
+init();
+</script>
+</body>
+</html>
